@@ -37,7 +37,16 @@ export default function App(): React.ReactElement | null {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator
+        screenOptions={{
+          headerShown: false,
+          statusBarStyle: "dark",
+          animationTypeForReplace: "push",
+        }}
+        initialRouteName={
+          showPermissionsPage ? "PermissionsPage" : "CameraPage"
+        }
+      >
         <Stack.Screen name="PermissionsPage" component={PermissionsPage} />
         <Stack.Screen name="CameraPage" component={CameraPage} />
       </Stack.Navigator>
