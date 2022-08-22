@@ -44,7 +44,7 @@ export function PermissionsPage({ navigation }: Props): React.ReactElement {
     )
       navigation.replace("CameraPage");
   }, [cameraPermissionStatus, microphonePermissionStatus, navigation]);
-  //navigation.replace("CameraPage") Stack 쌓지 않고 CameraPage로 이동하기.
+  //navigation.replace("CameraPage"): Stack 쌓지 않고 CameraPage로 이동하기.
 
   return (
     <View style={styles.container}>
@@ -58,6 +58,6 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "bisque",
   },
 });

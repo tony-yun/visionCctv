@@ -21,9 +21,9 @@ export default function App(): React.ReactElement | null {
     Camera.getMicrophonePermissionStatus().then(setMicrophonePermission);
   }, []);
   console.log(
-    "cameraPermission:",
+    "getCameraPermission:",
     cameraPermission,
-    "microphonePermission:",
+    "getMicrophonePermission:",
     microphonePermission
   );
 
@@ -43,6 +43,8 @@ export default function App(): React.ReactElement | null {
           statusBarStyle: "dark",
           animationTypeForReplace: "push",
         }}
+        //animationTypeForReplace는 PermissionPage.tsx에서
+        //navigation.replace("CameraPage")시 적용.
         initialRouteName={
           showPermissionsPage ? "PermissionsPage" : "CameraPage"
         }
