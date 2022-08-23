@@ -15,7 +15,12 @@ import {
 } from "react-native-reanimated";
 import { useIsFocused } from "@react-navigation/core";
 import { useIsForeground } from "../utils/useIsForeground";
-import { MAX_ZOOM_FACTOR } from "../utils/Constants";
+import {
+  BUTTON_SIZE,
+  CONTENT_SPACING,
+  MAX_ZOOM_FACTOR,
+  SAFE_AREA_PADDING,
+} from "../utils/Constants";
 import {
   PinchGestureHandler,
   PinchGestureHandlerGestureEvent,
@@ -108,17 +113,37 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   // 함수가 사용자에게 선형으로 표시되지 않습니다. (aka zoom 0.1 -> 0.2는 0.8 -> 0.9로 차이가 같아 보이지 않는다.)
   // * yarn add react-native-gesture-handler로 했지만 expo install을 해야했는지 의문.
 
-  return (
-    <View style={styles.container}>
-      <Text>CameraPage</Text>
-    </View>
-  );
+  return <View style={styles.container}></View>;
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    backgroundColor: "black",
+  },
+  captureButton: {
+    position: "absolute",
+    alignSelf: "center",
+    bottom: SAFE_AREA_PADDING.paddingBottom,
+  },
+  button: {
+    marginBottom: CONTENT_SPACING,
+    width: BUTTON_SIZE,
+    height: BUTTON_SIZE,
+    borderRadius: BUTTON_SIZE / 2,
+    backgroundColor: "rgba(140, 140, 140, 0.3)",
     justifyContent: "center",
+    alignItems: "center",
+  },
+  rightButtonRow: {
+    position: "absolute",
+    right: SAFE_AREA_PADDING.paddingRight,
+    top: SAFE_AREA_PADDING.paddingTop,
+  },
+  text: {
+    color: "white",
+    fontSize: 11,
+    fontWeight: "bold",
+    textAlign: "center",
   },
 });

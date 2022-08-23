@@ -18,3 +18,7 @@ export const SAFE_AREA_PADDING = {
 // The maximum zoom _factor_ you should be able to zoom in
 // 원본은 20이지만, 여기서는 30까지 늘려봄.
 export const MAX_ZOOM_FACTOR = 30;
+// 스케일 풀 줌 원본 3
+export const SCALE_FULL_ZOOM = 3;
+//버튼 사이즈 원본 40
+export const BUTTON_SIZE = 40;
