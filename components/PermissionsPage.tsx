@@ -12,6 +12,8 @@ import type { Routes } from "../utils/Routes";
 import { Camera, CameraPermissionStatus } from "react-native-vision-camera";
 import { CONTENT_SPACING, SAFE_AREA_PADDING } from "../utils/Constants";
 
+// PermissionsPage.tsx : 가로, 세로 회전 시 반응형 화면 적용 완료.
+
 const BANNER_IMAGE =
   require("../assets/waterai_rmbg.png") as ImageRequireSource;
 
