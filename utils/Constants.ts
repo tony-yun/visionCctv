@@ -14,3 +14,7 @@ export const SAFE_AREA_PADDING = {
   paddingRight: StaticSafeAreaInsets.safeAreaInsetsRight + CONTENT_SPACING,
   paddingBottom: SAFE_BOTTOM + CONTENT_SPACING,
 };
+
+// The maximum zoom _factor_ you should be able to zoom in
+// 원본은 20이지만, 여기서는 30까지 늘려봄.
+export const MAX_ZOOM_FACTOR = 30;
