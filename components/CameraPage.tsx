@@ -26,13 +26,6 @@ import Reanimated, {
 import { useIsFocused } from "@react-navigation/core";
 import { useIsForeground } from "../utils/useIsForeground";
 import {
-  BUTTON_SIZE,
-  CONTENT_SPACING,
-  MAX_ZOOM_FACTOR,
-  SAFE_AREA_PADDING,
-  SCALE_FULL_ZOOM,
-} from "../utils/Constants";
-import {
   PinchGestureHandler,
   PinchGestureHandlerGestureEvent,
   TapGestureHandler,
@@ -41,12 +34,19 @@ import { CaptureButton } from "../utils/CaptureButton";
 import { StatusBarBlurBackground } from "../utils/StatusBarBlurBackground";
 import IonIcon from "react-native-vector-icons/Ionicons";
 import { PressableOpacity } from "react-native-pressable-opacity";
+import {
+  CONTENT_SPACING,
+  MAX_ZOOM_FACTOR,
+  SAFE_AREA_PADDING,
+} from "../utils/Constants";
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
-
 Reanimated.addWhitelistedNativeProps({
   zoom: true,
 });
+
+const SCALE_FULL_ZOOM = 3;
+const BUTTON_SIZE = 40;
 
 type Props = NativeStackScreenProps<Routes, "CameraPage">;
 export function CameraPage({ navigation }: Props): React.ReactElement {

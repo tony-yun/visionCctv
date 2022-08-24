@@ -26,14 +26,13 @@ import {
   TapGestureHandler,
   TapGestureHandlerStateChangeEvent,
 } from "react-native-gesture-handler";
-import {
-  BORDER_WIDTH,
-  CAPTURE_BUTTON_SIZE,
-  PAN_GESTURE_HANDLER_ACTIVE_Y,
-  PAN_GESTURE_HANDLER_FAIL_X,
-  SCREEN_HEIGHT,
-  START_RECORDING_DELAY,
-} from "./Constants";
+import { CAPTURE_BUTTON_SIZE, SCREEN_HEIGHT, SCREEN_WIDTH } from "./Constants";
+
+const PAN_GESTURE_HANDLER_FAIL_X = [-SCREEN_WIDTH, SCREEN_WIDTH];
+const PAN_GESTURE_HANDLER_ACTIVE_Y = [-2, 2];
+
+const START_RECORDING_DELAY = 200;
+const BORDER_WIDTH = CAPTURE_BUTTON_SIZE * 0.1;
 
 interface Props extends ViewProps {
   camera: React.RefObject<Camera>;
@@ -281,7 +280,7 @@ const styles = StyleSheet.create({
     width: CAPTURE_BUTTON_SIZE,
     height: CAPTURE_BUTTON_SIZE,
     borderRadius: CAPTURE_BUTTON_SIZE / 2,
-    backgroundColor: "red",
+    backgroundColor: "#e34077",
   },
   button: {
     width: CAPTURE_BUTTON_SIZE,
