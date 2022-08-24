@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useRef } from "react";
 import { StyleSheet, View, ViewProps } from "react-native";
 import Reanimated, {
   cancelAnimation,
@@ -26,7 +26,12 @@ import {
   TapGestureHandler,
   TapGestureHandlerStateChangeEvent,
 } from "react-native-gesture-handler";
-import { BORDER_WIDTH, CAPTURE_BUTTON_SIZE } from "./Constants";
+import {
+  BORDER_WIDTH,
+  CAPTURE_BUTTON_SIZE,
+  SCREEN_HEIGHT,
+  START_RECORDING_DELAY,
+} from "./Constants";
 
 interface Props extends ViewProps {
   camera: React.RefObject<Camera>;
@@ -52,6 +57,188 @@ const _CaptureButton: React.FC<Props> = ({
   style,
   ...props
 }): React.ReactElement => {
+  const pressDownDate = useRef<Date | undefined>(undefined);
+  const isRecording = useRef(false);
+  const recordingProgress = useSharedValue(0);
+  const isPressingButton = useSharedValue(false);
+
+  const onStoppedRecording = useCallback(() => {
+    isRecording.current = false;
+    cancelAnimation(recordingProgress);
+    console.log("stopped recording video activated.");
+  }, [recordingProgress]);
+
+  const stopRecording = useCallback(async () => {
+    try {
+      if (camera.current == null) throw new Error("Camera ref is null");
+      await camera.current.stopRecording();
+    } catch (e) {
+      console.log("stopRecording error:", e);
+    }
+  }, [camera]);
+
+  const startRecording = useCallback(() => {
+    try {
+      if (camera.current == null) throw new Error("Camera res is null");
+      camera.current.startRecording({
+        flash: flash,
+        onRecordingError: (error) => {
+          console.log("Recording error:", error);
+          onStoppedRecording();
+        },
+        onRecordingFinished: (video) => {
+          console.log(`Video path: ${video.path}`);
+          onMediaCaptured(video, "video");
+          onStoppedRecording();
+        },
+      });
+      console.log("startRecording activated.");
+      isRecording.current = true;
+    } catch (e) {
+      console.log("startRecording error:", e);
+    }
+  }, [camera, flash, onMediaCaptured, onStoppedRecording]);
+
+  //gesture handler
+  const tapHandler = useRef<TapGestureHandler>();
+  const onHandlerStateChanged = useCallback(
+    async ({ nativeEvent: event }: TapGestureHandlerStateChangeEvent) => {
+      console.debug(`state:${Object.keys(State)[event.state]}`);
+      switch (event.state) {
+        case State.BEGAN: {
+          recordingProgress.value = 0;
+          isPressingButton.value = true;
+          const now = new Date();
+          pressDownDate.current = now;
+          setTimeout(() => {
+            if (pressDownDate.current === now) {
+              startRecording();
+            }
+          }, START_RECORDING_DELAY);
+          setIsPressingButton(true);
+          return;
+        }
+        case State.END:
+        case State.FAILED:
+        case State.CANCELLED: {
+          try {
+            if (pressDownDate.current == null)
+              throw new Error("PressDownDate ref.current is null");
+            const now = new Date();
+            const diff = now.getTime() - pressDownDate.current.getTime();
+            pressDownDate.current = undefined;
+            if (diff < START_RECORDING_DELAY) {
+              null;
+              //START_RECORDING_DELAY=200 ms
+            } else {
+              await stopRecording();
+            }
+          } finally {
+            setTimeout(() => {
+              isPressingButton.value = false;
+              setIsPressingButton(false);
+            }, 500);
+          }
+          return;
+        }
+        default:
+          break;
+      }
+    },
+    [
+      isPressingButton,
+      recordingProgress,
+      setIsPressingButton,
+      startRecording,
+      stopRecording,
+    ]
+  );
+
+  //정확한 용도는 미지수
+  const panHandler = useRef<PanGestureHandler>();
+  const onPanGestureEvent = useAnimatedGestureHandler<
+    PanGestureHandlerGestureEvent,
+    { offsetY?: number; startY: number }
+  >({
+    onStart: (event, context) => {
+      context.startY = event.absoluteY;
+      const yForFullZoom = context.startY * 0.7;
+      const offsetYForFullZoom = context.startY - yForFullZoom;
+      // extrapolate [0 ... 1] zoom -> [0 ... Y_FOR_FULL_ZOOM] finger position
+      context.offsetY = interpolate(
+        cameraZoom.value,
+        [minZoom, maxZoom],
+        [0, offsetYForFullZoom],
+        Extrapolate.CLAMP
+      );
+    },
+    onActive: (event, context) => {
+      const offset = context.offsetY ?? 0;
+      const startY = context.startY ?? SCREEN_HEIGHT;
+      const yForFullZoom = startY * 0.7;
+
+      cameraZoom.value = interpolate(
+        event.absoluteY - offset,
+        [yForFullZoom, startY],
+        [maxZoom, minZoom],
+        Extrapolate.CLAMP
+      );
+    },
+  });
+
+  const shadowStyle = useAnimatedStyle(
+    () => ({
+      transform: [
+        {
+          scale: withSpring(isPressingButton.value ? 1 : 0, {
+            mass: 1,
+            damping: 35,
+            stiffness: 300,
+          }),
+        },
+      ],
+    }),
+    [isPressingButton]
+  );
+
+  const buttonStyle = useAnimatedStyle(() => {
+    let scale: number;
+    if (enabled) {
+      if (isPressingButton.value) {
+        scale = withRepeat(
+          withSpring(1, {
+            stiffness: 100,
+            damping: 1000,
+          }),
+          -1,
+          true
+        );
+      } else {
+        scale = withSpring(0.9, {
+          stiffness: 500,
+          damping: 300,
+        });
+      }
+    } else {
+      scale = withSpring(0.6, {
+        stiffness: 500,
+        damping: 300,
+      });
+    }
+
+    return {
+      opacity: withTiming(enabled ? 1 : 0.3, {
+        duration: 100,
+        easing: Easing.linear,
+      }),
+      transform: [
+        {
+          scale: scale,
+        },
+      ],
+    };
+  }, [enabled, isPressingButton]);
+
   return (
     <TapGestureHandler>
       <Reanimated.View {...props}>

@@ -36,6 +36,6 @@ export const BORDER_WIDTH = CAPTURE_BUTTON_SIZE * 0.1;
 export const PAN_GESTURE_HANDLER_FAIL_X = [-SCREEN_WIDTH, SCREEN_WIDTH];
 export const PAN_GESTURE_HANDLER_ACTIVE_Y = [-2, 2];
 
-export const START_RECORDING_DELAY = 200;
-
 export const FALLBACK_COLOR = "rgba(140, 140, 140, 0.3)";
+
+export const START_RECORDING_DELAY = 200;
