@@ -7,11 +7,15 @@ import {
   CameraRuntimeError,
   useCameraDevices,
   VideoFile,
+  FrameProcessorPerformanceSuggestion,
+  useFrameProcessor,
 } from "react-native-vision-camera";
-import {
+import Reanimated, {
   useSharedValue,
   useAnimatedProps,
   useAnimatedGestureHandler,
+  interpolate,
+  Extrapolate,
 } from "react-native-reanimated";
 import { useIsFocused } from "@react-navigation/core";
 import { useIsForeground } from "../utils/useIsForeground";
@@ -20,12 +24,19 @@ import {
   CONTENT_SPACING,
   MAX_ZOOM_FACTOR,
   SAFE_AREA_PADDING,
+  SCALE_FULL_ZOOM,
 } from "../utils/Constants";
 import {
   PinchGestureHandler,
   PinchGestureHandlerGestureEvent,
   TapGestureHandler,
 } from "react-native-gesture-handler";
+
+const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
+
+Reanimated.addWhitelistedNativeProps({
+  zoom: true,
+});
 
 type Props = NativeStackScreenProps<Routes, "CameraPage">;
 export function CameraPage({ navigation }: Props): React.ReactElement {
@@ -112,8 +123,65 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   // 제스처 핸들러는 카메라의 줌 이후 선형 핀치 제스처(0 - 1)를 지수 곡선에 매핑한다.
   // 함수가 사용자에게 선형으로 표시되지 않습니다. (aka zoom 0.1 -> 0.2는 0.8 -> 0.9로 차이가 같아 보이지 않는다.)
   // * yarn add react-native-gesture-handler로 했지만 expo install을 해야했는지 의문.
+  const onPinchGesture = useAnimatedGestureHandler<
+    PinchGestureHandlerGestureEvent,
+    { startZoom?: number }
+  >({
+    onStart: (_, context) => {
+      context.startZoom = zoom.value;
+    },
+    onActive: (event, context) => {
+      //Trying to map the scale gesture to a linear zoom here
+      const startZoom = context.startZoom ?? 0;
+      const scale = interpolate(
+        event.scale,
+        [1 - 1 / SCALE_FULL_ZOOM, 1, SCALE_FULL_ZOOM],
+        [-1, 0, 1],
+        Extrapolate.CLAMP
+      );
+      zoom.value = interpolate(
+        scale,
+        [-1, 0, 1],
+        [minZoom, startZoom, maxZoom],
+        Extrapolate.CLAMP
+      );
+    },
+  });
 
-  return <View style={styles.container}></View>;
+  // 원래 && format != null이 있었음.
+  if (device != null) {
+    console.log(
+      `Re-rendering CameraPage with ${
+        isActive ? "active" : "inactive"
+      } camera.` + `Device: "${device.name}"`
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      {device != null && (
+        <PinchGestureHandler onGestureEvent={onPinchGesture} enabled={isActive}>
+          <Reanimated.View style={StyleSheet.absoluteFill}>
+            <TapGestureHandler onEnded={onDoubleTap} numberOfTaps={2}>
+              <ReanimatedCamera
+                ref={camera}
+                style={StyleSheet.absoluteFill}
+                device={device}
+                isActive={isActive}
+                onInitialized={onInitialized}
+                onError={onError}
+                enableZoomGesture={false}
+                animatedProps={cameraAnimatedProps}
+                video={true}
+                audio={hasMicrophonePermission}
+                orientation="landscapeLeft"
+              />
+            </TapGestureHandler>
+          </Reanimated.View>
+        </PinchGestureHandler>
+      )}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
