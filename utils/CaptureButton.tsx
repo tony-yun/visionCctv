@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     width: CAPTURE_BUTTON_SIZE,
     height: CAPTURE_BUTTON_SIZE,
     borderRadius: CAPTURE_BUTTON_SIZE / 2,
-    backgroundColor: "blue",
+    backgroundColor: "red",
   },
   button: {
     width: CAPTURE_BUTTON_SIZE,

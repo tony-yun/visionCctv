@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { StyleSheet, Text, View } from "react-native";
 import type { Routes } from "../utils/Routes";
@@ -33,6 +39,8 @@ import {
 } from "react-native-gesture-handler";
 import { CaptureButton } from "../utils/CaptureButton";
 import { StatusBarBlurBackground } from "../utils/StatusBarBlurBackground";
+import IonIcon from "react-native-vector-icons/Ionicons";
+import { PressableOpacity } from "react-native-pressable-opacity";
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 
@@ -62,6 +70,12 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
   //basic camera format setup
   const devices = useCameraDevices();
   const device = devices[cameraPosition];
+
+  const supportsCameraFlipping = useMemo(
+    () => devices.back != null && devices.front != null,
+    [devices.back, devices.front]
+  );
+  const supportsFlash = device?.hasFlash ?? false;
 
   //Animated zoom, this maps the zoom to a percentage value
   //e.g. for [min, neutr., max] values [1, 2, 128] this would result in [0, 0.0081, 1]
@@ -172,7 +186,7 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 isActive={isActive}
                 onInitialized={onInitialized}
                 onError={onError}
-                enableZoomGesture={false}
+                enableZoomGesture={true}
                 animatedProps={cameraAnimatedProps}
                 video={true}
                 audio={hasMicrophonePermission}
@@ -182,8 +196,34 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           </Reanimated.View>
         </PinchGestureHandler>
       )}
-      <CaptureButton />
+      <CaptureButton flash={supportsFlash ? flash : "off"} />
+
       <StatusBarBlurBackground />
+
+      <View style={styles.rightButtonRow}>
+        {supportsCameraFlipping && (
+          <PressableOpacity
+            style={styles.button}
+            onPress={onFlipCameraPressed}
+            disabledOpacity={0.4}
+          >
+            <IonIcon name="camera-reverse" color="white" size={24} />
+          </PressableOpacity>
+        )}
+        {supportsFlash && (
+          <PressableOpacity
+            style={styles.button}
+            onPress={onFlashPressed}
+            disabledOpacity={0.4}
+          >
+            <IonIcon
+              name={flash === "on" ? "flash" : "flash-off"}
+              color="white"
+              size={24}
+            />
+          </PressableOpacity>
+        )}
+      </View>
     </View>
   );
 }
