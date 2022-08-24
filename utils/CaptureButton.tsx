@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, ViewProps } from "react-native";
+import { StyleSheet, View, ViewProps } from "react-native";
 import Reanimated, {
   cancelAnimation,
   Easing,
@@ -19,6 +19,13 @@ import type {
   TakeSnapshotOptions,
   VideoFile,
 } from "react-native-vision-camera";
+import {
+  PanGestureHandler,
+  PanGestureHandlerGestureEvent,
+  State,
+  TapGestureHandler,
+  TapGestureHandlerStateChangeEvent,
+} from "react-native-gesture-handler";
 import { BORDER_WIDTH, CAPTURE_BUTTON_SIZE } from "./Constants";
 
 interface Props extends ViewProps {
@@ -45,7 +52,18 @@ const _CaptureButton: React.FC<Props> = ({
   style,
   ...props
 }): React.ReactElement => {
-  return null;
+  return (
+    <TapGestureHandler>
+      <Reanimated.View {...props}>
+        <PanGestureHandler>
+          <Reanimated.View>
+            <Reanimated.View />
+            <View />
+          </Reanimated.View>
+        </PanGestureHandler>
+      </Reanimated.View>
+    </TapGestureHandler>
+  );
 };
 
 export const CaptureButton = React.memo(_CaptureButton);
@@ -59,7 +77,7 @@ const styles = StyleSheet.create({
     width: CAPTURE_BUTTON_SIZE,
     height: CAPTURE_BUTTON_SIZE,
     borderRadius: CAPTURE_BUTTON_SIZE / 2,
-    backgroundColor: "#e34077",
+    backgroundColor: "blue",
   },
   button: {
     width: CAPTURE_BUTTON_SIZE,

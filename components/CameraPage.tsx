@@ -31,6 +31,8 @@ import {
   PinchGestureHandlerGestureEvent,
   TapGestureHandler,
 } from "react-native-gesture-handler";
+import { CaptureButton } from "../utils/CaptureButton";
+import { StatusBarBlurBackground } from "../utils/StatusBarBlurBackground";
 
 const ReanimatedCamera = Reanimated.createAnimatedComponent(Camera);
 
@@ -180,6 +182,8 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
           </Reanimated.View>
         </PinchGestureHandler>
       )}
+      <CaptureButton />
+      <StatusBarBlurBackground />
     </View>
   );
 }
