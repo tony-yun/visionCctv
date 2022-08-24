@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import type { Routes } from "../utils/Routes";
 import {
   Camera,
@@ -190,13 +190,23 @@ export function CameraPage({ navigation }: Props): React.ReactElement {
                 animatedProps={cameraAnimatedProps}
                 video={true}
                 audio={hasMicrophonePermission}
-                orientation="landscapeLeft"
+                orientation="portrait"
               />
             </TapGestureHandler>
           </Reanimated.View>
         </PinchGestureHandler>
       )}
-      <CaptureButton flash={supportsFlash ? flash : "off"} />
+      <CaptureButton
+        style={styles.captureButton}
+        camera={camera}
+        onMediaCaptured={onMediaCaptured}
+        cameraZoom={zoom}
+        minZoom={minZoom}
+        maxZoom={maxZoom}
+        flash={supportsFlash ? flash : "off"}
+        enabled={isCameraInitialized && isActive}
+        setIsPressingButton={setIsPressingButton}
+      />
 
       <StatusBarBlurBackground />
 

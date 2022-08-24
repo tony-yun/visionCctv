@@ -29,6 +29,8 @@ import {
 import {
   BORDER_WIDTH,
   CAPTURE_BUTTON_SIZE,
+  PAN_GESTURE_HANDLER_ACTIVE_Y,
+  PAN_GESTURE_HANDLER_FAIL_X,
   SCREEN_HEIGHT,
   START_RECORDING_DELAY,
 } from "./Constants";
@@ -158,7 +160,7 @@ const _CaptureButton: React.FC<Props> = ({
   const panHandler = useRef<PanGestureHandler>();
   const onPanGestureEvent = useAnimatedGestureHandler<
     PanGestureHandlerGestureEvent,
-    { offsetY?: number; startY: number }
+    { offsetY?: number; startY?: number }
   >({
     onStart: (event, context) => {
       context.startY = event.absoluteY;
@@ -240,12 +242,27 @@ const _CaptureButton: React.FC<Props> = ({
   }, [enabled, isPressingButton]);
 
   return (
-    <TapGestureHandler>
-      <Reanimated.View {...props}>
-        <PanGestureHandler>
-          <Reanimated.View>
-            <Reanimated.View />
-            <View />
+    <TapGestureHandler
+      enabled={enabled}
+      ref={tapHandler}
+      onHandlerStateChange={onHandlerStateChanged}
+      shouldCancelWhenOutside={false}
+      maxDurationMs={99999999} // <-- this prevents the TapGestureHandler from going to
+      //State.FAILED when the user moves his finger outside of the child view (to zoom)
+      simultaneousHandlers={panHandler} // simultaneous동시에 일어나는 Handlers
+    >
+      <Reanimated.View {...props} style={[buttonStyle, style]}>
+        <PanGestureHandler
+          enabled={enabled}
+          ref={panHandler}
+          failOffsetX={PAN_GESTURE_HANDLER_FAIL_X}
+          activeOffsetY={PAN_GESTURE_HANDLER_ACTIVE_Y}
+          onGestureEvent={onPanGestureEvent}
+          simultaneousHandlers={tapHandler} // simultaneous동시에 일어나는 Handlers
+        >
+          <Reanimated.View style={styles.flex}>
+            <Reanimated.View style={[styles.shadow, shadowStyle]} />
+            <View style={styles.button} />
           </Reanimated.View>
         </PanGestureHandler>
       </Reanimated.View>
