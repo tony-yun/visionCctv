@@ -287,6 +287,6 @@ const styles = StyleSheet.create({
     height: CAPTURE_BUTTON_SIZE,
     borderRadius: CAPTURE_BUTTON_SIZE / 2,
     borderWidth: BORDER_WIDTH,
-    borderColor: "white",
+    borderColor: "bisque",
   },
 });
